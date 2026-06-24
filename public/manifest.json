@@ -1,0 +1,38 @@
+{
+  "short_name": "CoreOps",
+  "name": "CoreOps - نظام إدارة المقاولات الميدانية",
+  "description": "نظام متكامل لإدارة أعمال المقاولات والصيانة والتشغيل، يربط الإدارة بالمشاريع والموظفين ميدانياً ويغطي المهام والعهد والتقارير اليومية والحضور وقسم المبيعات.",
+  "icons": [
+    {
+      "src": "/icon-192.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "categories": ["business", "productivity"]
+}

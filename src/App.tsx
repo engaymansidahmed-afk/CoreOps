@@ -14,7 +14,7 @@ import { ToastContainer, useToast } from './components/SharedComponents';
 import { LoginScreen } from './components/LoginScreen';
 import { initializeStorage, loadFromStorage, saveToStorage, INITIAL_EMPLOYEES, INITIAL_PROJECTS, INITIAL_TASKS, INITIAL_ADVANCES, INITIAL_ASSETS, INITIAL_LEADS, INITIAL_DAILY_REPORTS, INITIAL_ATTENDANCE, INITIAL_NOTIFICATIONS } from './data';
 import { Employee, Project, Task, CashAdvance, Asset, Lead, DailyReport, AttendanceLog, SystemNotification, EmployeeRole, SecurityLog } from './types';
-import { Bell, Briefcase, Hammer, Wallet, Shield, Users, Info, HelpCircle, LogOut, Check, ChevronDown, Clock, MessageSquarePlus } from 'lucide-react';
+import { Bell, Briefcase, Hammer, Wallet, Shield, Users, Info, HelpCircle, LogOut, Check, ChevronDown, Clock, MessageSquarePlus, Download } from 'lucide-react';
 
 const INITIAL_SECURITY_LOGS: SecurityLog[] = [
   {
@@ -59,6 +59,43 @@ function CoreOpsApp() {
   const [notifications, setNotifications] = useState<SystemNotification[]>([]);
   const [securityLogs, setSecurityLogs] = useState<SecurityLog[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+  // Listen for PWA Install Prompt (Android & Desktop support)
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBanner(true);
+      console.log('PWA installation prompt is available');
+    };
+
+    const handleAppInstalled = () => {
+      console.log('PWA was installed successfully');
+      showToast('🎉 تهانينا! تم تثبيت تطبيق CoreOps بنجاح على جهازك', 'success');
+      handleAddSecurityLog('login_success', currentUser?.code || 'system', 'تم تثبيت تطبيق الويب المستقل (PWA) بنجاح على الجهاز', 'low');
+      setShowInstallBanner(false);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, [currentUser]);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User installation choice outcome: ${outcome}`);
+    setDeferredPrompt(null);
+    setShowInstallBanner(false);
+  };
 
   // Initialize storage once on boot
   useEffect(() => {
@@ -278,6 +315,18 @@ function CoreOpsApp() {
 
           {/* User Profile Info HUD + Notifications */}
           <div className="flex items-center gap-4">
+            {/* PWA Install Button (Header) */}
+            {deferredPrompt && (
+              <button
+                onClick={handleInstallClick}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/50 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs animate-pulse"
+                title="تثبيت التطبيق على جهازك"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">تثبيت التطبيق</span>
+              </button>
+            )}
+
             {/* Notifications Bell */}
             <div className="relative">
               <button
@@ -433,6 +482,38 @@ function CoreOpsApp() {
           />
         )}
       </main>
+
+      {/* PWA Floating Installation Prompt Banner (Arabic) */}
+      {showInstallBanner && deferredPrompt && (
+        <div className="fixed bottom-4 right-4 left-4 md:right-auto md:left-4 md:max-w-md bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-800 z-50 flex flex-col gap-3 animate-bounce" style={{ direction: 'rtl' }}>
+          <div className="flex items-start gap-3">
+            <div className="bg-blue-500 p-2 rounded-xl shrink-0 mt-0.5">
+              <Download className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-slate-100">تثبيت تطبيق CoreOps على جهازك</h4>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                احصل على وصول سريع ومستقل لجميع ميزات النظام التشغيلية الميدانية، إنفاق العهد، ومتابعة المهام مع دعم كامل للعمل بدون اتصال بالإنترنت (Offline Mode).
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-2.5 mt-1 border-t border-slate-800/80 pt-3">
+            <button
+              onClick={() => setShowInstallBanner(false)}
+              className="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+            >
+              ليس الآن
+            </button>
+            <button
+              onClick={handleInstallClick}
+              className="px-4 py-1.5 text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>تثبيت الآن</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Realtime Toasts UI Renderer */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
