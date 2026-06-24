@@ -1,38 +1,38 @@
 {
-"name": "CoreOps - نظام إدارة المقاولات الميدانية",
-"short_name": "CoreOps",
-"description": "نظام متكامل لإدارة أعمال المقاولات والصيانة والتشغيل وإدارة المشاريع والموظفين والمهام والتقارير اليومية.",
-"start_url": "/",
-"scope": "/",
-"display": "standalone",
-"orientation": "portrait-primary",
-"background_color": "#0f172a",
-"theme_color": "#3b82f6",
-"lang": "ar",
-"dir": "rtl",
-"prefer_related_applications": false,
-"categories": [
-"business",
-"productivity"
-],
-"icons": [
-{
-"src": "/icon-192.png",
-"sizes": "192x192",
-"type": "image/png",
-"purpose": "any"
-},
-{
-"src": "/icon-512.png",
-"sizes": "512x512",
-"type": "image/png",
-"purpose": "any"
-},
-{
-"src": "/icon-512.png",
-"sizes": "512x512",
-"type": "image/png",
-"purpose": "maskable"
-}
-]
+  "short_name": "CoreOps",
+  "name": "CoreOps - نظام إدارة المقاولات الميدانية",
+  "description": "نظام متكامل لإدارة أعمال المقاولات والصيانة والتشغيل، يربط الإدارة بالمشاريع والموظفين ميدانياً ويغطي المهام والعهد والتقارير اليومية والحضور وقسم المبيعات.",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "categories": ["business", "productivity"]
 }
