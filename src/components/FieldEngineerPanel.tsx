@@ -4,12 +4,15 @@
  */
 
 import React, { useState } from 'react';
-import { Task, Project, CashAdvance, Asset, AttendanceLog, DailyReport } from '../types';
+import { Task, Project, CashAdvance, Asset, AttendanceLog, DailyReport, Employee } from '../types';
 import { StatusBadge, PriorityBadge, SignaturePad, FileUpload } from './SharedComponents';
 import { useAppTheme } from './ThemeContext';
-import { MapPin, Hammer, Wallet, Calendar, Clock, Image, FileText, CheckCircle, Upload, AlertCircle, Play, ChevronLeft, Check, Sparkles, X } from 'lucide-react';
+import { MapPin, Hammer, Wallet, Calendar, Clock, Image, FileText, CheckCircle, Upload, AlertCircle, Play, ChevronLeft, Check, Sparkles, X, MessageSquare } from 'lucide-react';
+import { ChatCenter } from './ChatCenter';
 
 interface FieldEngineerPanelProps {
+  currentUser: Employee;
+  employees: Employee[];
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   projects: Project[];
@@ -25,6 +28,8 @@ interface FieldEngineerPanelProps {
 }
 
 export const FieldEngineerPanel: React.FC<FieldEngineerPanelProps> = ({
+  currentUser,
+  employees,
   tasks, setTasks,
   projects,
   advances, setAdvances,
@@ -35,8 +40,9 @@ export const FieldEngineerPanel: React.FC<FieldEngineerPanelProps> = ({
 }) => {
   const { primaryBg, primaryText, primaryLightBg, badgeBg, badgeText } = useAppTheme();
   
-  // Tabs: tasks, attendance, cash_advances, assets, daily_reports
-  const [activeTab, setActiveTab] = useState<'tasks' | 'attendance' | 'cash_advances' | 'assets' | 'daily_reports'>('tasks');
+  // Tabs: tasks, attendance, cash_advances, assets, daily_reports, chat
+  const [activeTab, setActiveTab] = useState<'tasks' | 'attendance' | 'cash_advances' | 'assets' | 'daily_reports' | 'chat'>('tasks');
+  const [selectedLinkedEntity, setSelectedLinkedEntity] = useState<{ type: 'project' | 'task'; id: string } | undefined>(undefined);
   
   // Task action state
   const [activeTaskToReport, setActiveTaskToReport] = useState<Task | null>(null);
@@ -267,9 +273,9 @@ export const FieldEngineerPanel: React.FC<FieldEngineerPanelProps> = ({
     setGeneralAfter('');
   };
 
-  const myTasks = tasks.filter(t => t.assignedEmployeeId === 'emp-1001');
-  const myAdvances = advances.filter(a => a.employeeId === 'emp-1001');
-  const myAssets = assets.filter(a => a.assignedToEmployeeId === 'emp-1001');
+  const myTasks = tasks.filter(t => t.assignedEmployeeId === currentUser.id);
+  const myAdvances = advances.filter(a => a.employeeId === currentUser.id);
+  const myAssets = assets.filter(a => a.assignedToEmployeeId === currentUser.id);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6" style={{ direction: 'rtl' }}>
@@ -314,6 +320,17 @@ export const FieldEngineerPanel: React.FC<FieldEngineerPanelProps> = ({
           <FileText className="w-4 h-4" />
           <span>التقرير اليومي العام</span>
         </button>
+
+        <button
+          onClick={() => {
+            setSelectedLinkedEntity(undefined);
+            setActiveTab('chat');
+          }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'chat' ? `${primaryBg} text-white shadow-md` : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>مركز التواصل والتعاون</span>
+        </button>
       </div>
 
       {/* --- TASKS VIEW --- */}
@@ -344,7 +361,21 @@ export const FieldEngineerPanel: React.FC<FieldEngineerPanelProps> = ({
 
                 {/* Task actions */}
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
-                  <span className="font-mono text-[10px] text-slate-400">تاريخ التسليم: {task.endDate}</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-mono text-[10px] text-slate-400">تاريخ التسليم: {task.endDate}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedLinkedEntity({ type: 'task', id: task.id });
+                        setActiveTab('chat');
+                      }}
+                      className="flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer text-right"
+                      title="الذهاب لغرفة مناقشة المهمة"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>نقاش المهمة التشغيلية</span>
+                    </button>
+                  </div>
                   
                   {task.status === 'pending' && (
                     <button
@@ -810,6 +841,20 @@ export const FieldEngineerPanel: React.FC<FieldEngineerPanelProps> = ({
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* --- COLLABORATION & COMMUNICATION CENTER TAB --- */}
+      {activeTab === 'chat' && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm h-[750px]">
+          <ChatCenter 
+            currentUser={currentUser} 
+            employees={employees}
+            projects={projects}
+            tasks={tasks}
+            autoOpenLinkedEntity={selectedLinkedEntity}
+            onShowToast={onShowToast}
+          />
         </div>
       )}
     </div>

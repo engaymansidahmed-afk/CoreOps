@@ -9,6 +9,8 @@ import { StatusBadge, PriorityBadge, GPSMap } from './SharedComponents';
 import { useAppTheme } from './ThemeContext';
 import { Plus, Users, Briefcase, CheckSquare, Wallet, Calendar, MapPin, Search, AlertTriangle, TrendingUp, Compass, ChevronLeft, LayoutDashboard, Database, BarChart3, Clock, Check, X, Shield, Mail, Key, RefreshCw, Lock, Unlock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { hashPassword } from '../lib/crypto';
+import { ChatCenter } from './ChatCenter';
+import { MessageSquare } from 'lucide-react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -23,6 +25,7 @@ import {
 } from 'recharts';
 
 interface AdminDashboardProps {
+  currentUser: Employee;
   projects: Project[];
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   tasks: Task[];
@@ -42,6 +45,7 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  currentUser,
   projects, setProjects,
   tasks, setTasks,
   advances, setAdvances,
@@ -56,8 +60,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const { primaryBg, primaryText, primaryBorder, primaryLightBg, badgeBg, badgeText, appMode } = useAppTheme();
   
-  // Tabs: dashboard, projects, tasks, advances, assets, attendance, reports, security
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'tasks' | 'advances' | 'assets' | 'attendance' | 'reports' | 'security'>('dashboard');
+  // Tabs: dashboard, projects, tasks, advances, assets, attendance, reports, security, chat
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'tasks' | 'advances' | 'assets' | 'attendance' | 'reports' | 'security' | 'chat'>('dashboard');
+  const [selectedLinkedEntity, setSelectedLinkedEntity] = useState<{ type: 'project' | 'task'; id: string } | undefined>(undefined);
   
   // Security Log Filters
   const [logFilterAction, setLogFilterAction] = useState<string>('all');
@@ -486,6 +491,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <Shield className="w-4 h-4" />
           <span>الموظفين والأمان</span>
         </button>
+
+        <button
+          onClick={() => {
+            setSelectedLinkedEntity(undefined);
+            setActiveTab('chat');
+          }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'chat' ? `${primaryBg} text-white shadow-md` : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>مركز التواصل والتعاون</span>
+        </button>
       </div>
 
       {/* --- DASHBOARD VIEW --- */}
@@ -847,8 +863,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-900/60 p-3 px-4 flex items-center justify-between text-xs text-slate-500">
+                <div className="bg-slate-50 dark:bg-slate-900/60 p-3 px-4 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 dark:border-slate-800">
                   <span>العميل: <strong className="text-slate-700 dark:text-slate-300">{p.clientName}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedLinkedEntity({ type: 'project', id: p.id });
+                      setActiveTab('chat');
+                    }}
+                    className="flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                    title="الذهاب لغرفة محادثة ومناقشات المشروع"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>مناقشة المشروع</span>
+                  </button>
                 </div>
               </div>
             ))}
@@ -990,7 +1018,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs text-slate-500">
-                  <span>المهندس المسؤول: <strong className="text-slate-700 dark:text-slate-300 font-semibold">{t.assignedEmployeeName}</strong></span>
+                  <div className="flex flex-col gap-1">
+                    <span>المهندس المسؤول: <strong className="text-slate-700 dark:text-slate-300 font-semibold">{t.assignedEmployeeName}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedLinkedEntity({ type: 'task', id: t.id });
+                        setActiveTab('chat');
+                      }}
+                      className="flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer text-right"
+                      title="الذهاب لغرفة مناقشة المهمة"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>نقاش المهمة التشغيلية</span>
+                    </button>
+                  </div>
                   <span className="font-mono text-[10px] text-slate-400">{t.startDate} ⟵ {t.endDate}</span>
                 </div>
               </div>
@@ -1819,6 +1861,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* --- COLLABORATION & COMMUNICATION CENTER TAB --- */}
+      {activeTab === 'chat' && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm h-[750px]">
+          <ChatCenter 
+            currentUser={currentUser} 
+            employees={employees}
+            projects={projects}
+            tasks={tasks}
+            autoOpenLinkedEntity={selectedLinkedEntity}
+            onShowToast={onShowToast}
+          />
         </div>
       )}
 

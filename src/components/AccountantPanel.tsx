@@ -4,12 +4,16 @@
  */
 
 import React, { useState } from 'react';
-import { CashAdvance, Project, ClearanceInvoice } from '../types';
+import { CashAdvance, Project, ClearanceInvoice, Employee, Task } from '../types';
 import { StatusBadge } from './SharedComponents';
 import { useAppTheme } from './ThemeContext';
-import { DollarSign, Wallet, FileSpreadsheet, Check, Eye, X, BarChart, TrendingUp, AlertCircle, Printer, Download } from 'lucide-react';
+import { DollarSign, Wallet, FileSpreadsheet, Check, Eye, X, BarChart, TrendingUp, AlertCircle, Printer, Download, MessageSquare } from 'lucide-react';
+import { ChatCenter } from './ChatCenter';
 
 interface AccountantPanelProps {
+  currentUser: Employee;
+  employees: Employee[];
+  tasks: Task[];
   advances: CashAdvance[];
   setAdvances: React.Dispatch<React.SetStateAction<CashAdvance[]>>;
   projects: Project[];
@@ -17,6 +21,9 @@ interface AccountantPanelProps {
 }
 
 export const AccountantPanel: React.FC<AccountantPanelProps> = ({
+  currentUser,
+  employees,
+  tasks,
   advances,
   setAdvances,
   projects,
@@ -24,8 +31,8 @@ export const AccountantPanel: React.FC<AccountantPanelProps> = ({
 }) => {
   const { primaryBg, primaryText, primaryLightBg, badgeBg, badgeText } = useAppTheme();
   
-  // Tabs: pending_payments, audit_clearances, financial_ledger
-  const [activeTab, setActiveTab] = useState<'pending_payments' | 'audit_clearances' | 'financial_ledger'>('pending_payments');
+  // Tabs: pending_payments, audit_clearances, financial_ledger, chat
+  const [activeTab, setActiveTab] = useState<'pending_payments' | 'audit_clearances' | 'financial_ledger' | 'chat'>('pending_payments');
   
   // Selected invoice preview state
   const [activeInvoicePreview, setActiveInvoicePreview] = useState<ClearanceInvoice | null>(null);
@@ -105,6 +112,14 @@ export const AccountantPanel: React.FC<AccountantPanelProps> = ({
         >
           <BarChart className="w-4 h-4" />
           <span>القوائم المالية والتحليل</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('chat')}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'chat' ? `${primaryBg} text-white shadow-md` : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>مركز التواصل والتعاون</span>
         </button>
       </div>
 
@@ -321,6 +336,19 @@ export const AccountantPanel: React.FC<AccountantPanelProps> = ({
               <span className="text-[9px] text-slate-400 block mt-1">بعهدة المهندسين وتنتظر رفع فواتير التصفية</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* --- COLLABORATION & COMMUNICATION CENTER TAB --- */}
+      {activeTab === 'chat' && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm h-[750px]">
+          <ChatCenter 
+            currentUser={currentUser} 
+            employees={employees}
+            projects={projects}
+            tasks={tasks}
+            onShowToast={onShowToast}
+          />
         </div>
       )}
     </div>

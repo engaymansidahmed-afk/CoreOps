@@ -424,6 +424,7 @@ function CoreOpsApp() {
       <main className="transition-all duration-300">
         {currentRole === 'admin' && (
           <AdminDashboard 
+            currentUser={currentUser!}
             projects={projects}
             setProjects={setProjects}
             tasks={tasks}
@@ -445,6 +446,8 @@ function CoreOpsApp() {
 
         {currentRole === 'engineer' && (
           <FieldEngineerPanel 
+            currentUser={currentUser!}
+            employees={employees}
             tasks={tasks}
             setTasks={setTasks}
             projects={projects}
@@ -462,6 +465,9 @@ function CoreOpsApp() {
 
         {currentRole === 'accountant' && (
           <AccountantPanel 
+            currentUser={currentUser!}
+            employees={employees}
+            tasks={tasks}
             advances={advances}
             setAdvances={setAdvances}
             projects={projects}
@@ -471,6 +477,7 @@ function CoreOpsApp() {
 
         {currentRole === 'sales' && (
           <SalesPanel 
+            currentUser={currentUser!}
             leads={leads}
             setLeads={setLeads}
             employees={employees}

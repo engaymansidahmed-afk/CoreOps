@@ -7,9 +7,11 @@ import React, { useState } from 'react';
 import { Lead, Employee, Task, Project } from '../types';
 import { StatusBadge, GPSMap } from './SharedComponents';
 import { useAppTheme } from './ThemeContext';
-import { Plus, Users, MapPin, Phone, Briefcase, Share2, DollarSign, Send, FileText, ChevronLeft, BarChart3, TrendingUp, Compass, Check, X, Sparkles } from 'lucide-react';
+import { Plus, Users, MapPin, Phone, Briefcase, Share2, DollarSign, Send, FileText, ChevronLeft, BarChart3, TrendingUp, Compass, Check, X, Sparkles, MessageSquare } from 'lucide-react';
+import { ChatCenter } from './ChatCenter';
 
 interface SalesPanelProps {
+  currentUser: Employee;
   leads: Lead[];
   setLeads: React.Dispatch<React.SetStateAction<Lead[]>>;
   employees: Employee[];
@@ -21,6 +23,7 @@ interface SalesPanelProps {
 }
 
 export const SalesPanel: React.FC<SalesPanelProps> = ({
+  currentUser,
   leads, setLeads,
   employees,
   tasks, setTasks,
@@ -29,8 +32,8 @@ export const SalesPanel: React.FC<SalesPanelProps> = ({
 }) => {
   const { primaryBg, primaryText, primaryLightBg, badgeBg, badgeText } = useAppTheme();
   
-  // Tabs: leads_list, new_lead_form, leads_map, sales_analytics
-  const [activeTab, setActiveTab] = useState<'leads_list' | 'new_lead_form' | 'leads_map' | 'sales_analytics'>('leads_list');
+  // Tabs: leads_list, new_lead_form, leads_map, sales_analytics, chat
+  const [activeTab, setActiveTab] = useState<'leads_list' | 'new_lead_form' | 'leads_map' | 'sales_analytics' | 'chat'>('leads_list');
 
   // New Lead Form State
   const [clientName, setClientName] = useState('');
@@ -196,6 +199,14 @@ export const SalesPanel: React.FC<SalesPanelProps> = ({
         >
           <BarChart3 className="w-4 h-4" />
           <span>تحليل أداء المبيعات</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('chat')}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'chat' ? `${primaryBg} text-white shadow-md` : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>مركز التواصل والتعاون</span>
         </button>
       </div>
 
@@ -529,6 +540,19 @@ export const SalesPanel: React.FC<SalesPanelProps> = ({
               <span className="text-[9px] text-slate-400 block mt-1">التحويل من Leads إلى عروض أسعار ومشاريع منفذة</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* --- COLLABORATION & COMMUNICATION CENTER TAB --- */}
+      {activeTab === 'chat' && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm h-[750px]">
+          <ChatCenter 
+            currentUser={currentUser} 
+            employees={employees}
+            projects={projects}
+            tasks={tasks}
+            onShowToast={onShowToast}
+          />
         </div>
       )}
     </div>
