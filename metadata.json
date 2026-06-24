@@ -1,0 +1,6 @@
+{
+  "name": "CoreOps",
+  "description": "نظام متكامل لإدارة أعمال المقاولات والصيانة والتشغيل، يربط الإدارة بالمشاريع والموظفين ميدانياً ويغطي المهام والعهد والتقارير اليومية والحضور وقسم المبيعات.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
